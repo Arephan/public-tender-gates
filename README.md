@@ -125,3 +125,32 @@ re-probed with this script after the CSV was written and all nine matched.
 
 A state can change the day a buyer changes plan. The `measured_on` column is there so a
 stale row is visible as a stale row.
+
+## `gate-grep.mjs` — read a tender document pack and print its pass/fail gates
+
+Point it at the folder you downloaded the tender pack into. It reads PDF, DOCX,
+XLSX and plain text, and prints every line that looks like a gate a small
+supplier cannot clear on submission day: client references, prior-contract
+counts, insurance certificates, ISO/SOC certification, minimum turnover,
+geography or establishment clauses, headcount minimums, a fee to bid.
+
+```
+node gate-grep.mjs ./my-tender-pack
+```
+
+Needs Node 18+ and `pdftotext` (poppler) on PATH. No account, no API key, no
+network — it only reads files you already have.
+
+It prints how many files it read and names the ones it could not, because the
+failure mode that matters is a screener that reports a clean pack when it in
+fact read nothing. That is not hypothetical: until 2026-09-12 this script only
+opened `.txt` and `.md`, so on every real pack it printed *"No gate signals
+found"*. Pointed at the Bord Iascaigh Mhara FMS tender (eTenders 8799836) it
+reported nothing; the fixed version reports 13 signals in the same folder,
+including a **EUR 950,000 minimum turnover over each of the last three financial
+years** in the CPD and an **ISO 27001** requirement in the requirements matrix —
+two independent pass/fail gates, either of which ends the bid for a supplier
+without three years of audited accounts.
+
+A gate is not a judgement. It tells you which page to read before you spend a
+day writing a proposal.
