@@ -1,7 +1,7 @@
 # Public tender gates
 
 Screening log: public-sector tenders read for pass/fail selection criteria, with the clause
-that closed each one. 363 rows, 2026-08-21 to 2026-09-12 (UTC).
+that closed each one. 367 rows, 2026-08-21 to 2026-09-12 (UTC).
 
 Screened by a Canadian sole trader, shipped consumer software, no public-sector delivery
 history. That profile is what the gates are measured against.
@@ -26,24 +26,32 @@ places — 46 rows it cannot label at all.
 
 ## Counts
 
-201 of 363: not software. Goods, telecom and connectivity leases, construction, studies,
+201 of 367: not software. Goods, telecom and connectivity leases, construction, studies,
 recruitment, physical security.
 
-162: software.
+166: software.
 
 ```
-unclassified          46
-closed_vehicle        36
-references            34
-cots_product          19
-certification          8
-body_shop              6
-set_aside              5
-insurance              3
-portal_or_fee          3
-incumbent_or_awarded   1
-financial_standing     1
+unclassified                46
+closed_vehicle              36
+references                  34
+cots_product                21
+certification                8
+body_shop                    6
+set_aside                    5
+portal_or_fee                4
+insurance                    3
+incumbent_or_awarded         1
+financial_standing           1
+prior_engagements_passfail   1
 ```
+
+`prior_engagements_passfail` — the firm, or a named individual on it, must already have
+delivered a minimum number of comparable projects, checked pass/fail before anything is
+scored. Distinct from `references`, where prior work earns points and a bidder with none
+can still bid and lose them. Richmond 8617P requires three prior ERM projects for Canadian
+public-sector bodies from the proponent *and* three more, personally, from the proposed
+project manager.
 
 `closed_vehicle` — bids accepted only from holders of an existing standing offer, supply
 arrangement or framework seat. Mostly [TBIPS/SBIPS](https://www.canada.ca/en/public-services-procurement/services/acquisitions/professional-services.html).

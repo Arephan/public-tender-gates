@@ -1,9 +1,10 @@
 import fs from 'fs';
 const L=fs.readFileSync('PIPELINE.jsonl','utf8').trim().split('\n').map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean);
-const k=L.filter(r=>/^killed|^no-bid/i.test(r.stage||''));
+const k=L.filter(r=>/^killed|^no-bid/i.test(r.stage||r.state||''));
 const RULES=[
  ['closed_vehicle',     /standing[- ]offer|supply arrangement|\bTBIPS\b|\bSBIPS\b|already hold|restricted to existing|pre-?qualified list|existing supplier list|framework agreement|approved supplier/i],
  ['set_aside',          /set-?aside|reserved for|\bPSAB\b|indigenous business|social enterprise only/i],
+ ['prior_engagements_passfail', /pass ?\/ ?fail[\s\S]{0,300}?minimum of (one|two|three|four|five|\d+)[\s\S]{0,120}?(project|engagement|implementation|contract)s?|minimum of (one|two|three|four|five|\d+) ?\(?\d*\)?[\s\S]{0,120}?(project|engagement|implementation)s?[\s\S]{0,200}?pass ?\/ ?fail|minimum (company|proponent|firm|project manager) qualifications?/i],
  ['references',         /\breferences?\b|referee/i],
  ['financial_standing', /turnover|audited|auditor|financial standing|balance sheet|bonding|\bbid bond\b|net worth|annual revenue/i],
  ['insurance',          /insurance|professional indemnity|indemnit|liability cover/i],
