@@ -76,3 +76,44 @@ the stated minimum was out of reach; those rows say so.
 `classify.mjs` regenerates the CSV from the source log.
 
 CC0.
+
+## data/bidsandtenders-tenant-access.csv
+
+A second, smaller screening log, added 2026-09-12. Same question asked one level up: before
+you read a tender pack for gates, can you reach the pack at all?
+
+bids&tenders is a single platform with one subdomain per buyer. Access is set per tenant,
+not per notice, and the notice page does not say so until you open it. 129 tenant subdomains
+were probed anonymously on 2026-09-12:
+
+| `access_state` | n | what it means |
+|---|---|---|
+| `FEE` | 45 | the first open notice's detail page says *"you will need to have a subscription plan or buy Pay-Per-Bid access for this opportunity"*. Every notice on that tenant is behind that. |
+| `FREE` | 27 | no such string. Documents and plan-taker registration are free. |
+| `NO-OPEN-BIDS` | 12 | reachable, nothing open at probe time, so access untested. |
+| `DEAD-SLUG` | 45 | `<slug>.bidsandtenders.ca` redirected to `/Error?aspxerrorpath=`. |
+
+`DEAD-SLUG` means **the subdomain guess was wrong, not that the buyer is absent** — Niagara
+Region is `niagararegion`, not `niagara`. Treat that column as "this list had the wrong
+address", nothing more.
+
+The fee band is regional rather than random: the 45 `FEE` tenants are almost entirely
+Ontario, including Hamilton, London, Kitchener, Mississauga, Markham, Brampton, Durham,
+York and Niagara Region. The `FREE` tenants are mostly Western Canada and the Maritimes.
+
+### Reproducing it
+
+`probe-tenant-access.mjs` is the whole method — Node 18+, no dependencies, no account:
+
+```
+node probe-tenant-access.mjs hamilton sturgeoncounty
+{"slug":"hamilton","state":"FEE","open_notices":5,"sampled":"C11-71-26 - Tender for Supply and Delivery of Sodium Bisulfite"}
+{"slug":"sturgeoncounty","state":"FREE","open_notices":4,"sampled":"2026-115 - Reconstruction and Surfacing of Twp Rd 560 - Engineering"}
+```
+
+It fetches the tenant homepage for a cookie and the anti-forgery token, posts the open-bid
+search, then reads the first notice's detail page and greps it. Nine of the 129 rows were
+re-probed with this script after the CSV was written and all nine matched.
+
+A state can change the day a buyer changes plan. The `measured_on` column is there so a
+stale row is visible as a stale row.
