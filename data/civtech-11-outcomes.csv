@@ -1,0 +1,5 @@
+challenge,buyer,contract_value_gbp,tenders_received,tenders_received_sme,sme_share,winner,winner_town,contract_concluded,source
+CivTech 11.6 (teacher workload),Scottish Government,598363,37,37,100%,Poteris,London,2026-08-04,PCS award notice API noticeType=3
+CivTech 11.x (Scottish Government),Scottish Government,599859,29,29,100%,Daysix Ltd,Edinburgh,2026-08-20,PCS award notice API noticeType=3
+CivTech 11.1 (flooding impact),Scottish Environment Protection Agency,563870,15,15,100%,Ocean intelligence,Nelson,2026-07-23,PCS award notice API noticeType=3
+CivTech 11.3 (environmental impact),The GRAB Trust,550000,5,5,100%,4c Design Limited,Glasgow,2026-07-14,PCS award notice API noticeType=3
