@@ -1,0 +1,9 @@
+board,jurisdiction,url,anonymous_notice_list,anonymous_detail_page,anonymous_document_pack,blocker,measured_utc
+AusTender,Australia (federal),https://www.tenders.gov.au/public_data/rss/rss.xml,yes,yes,no,Free supplier account required to download ATM documents,2026-09-13T11:51Z
+Tenders WA,Western Australia,https://www.tenders.wa.gov.au/watenders/tender/search/tender-search.do?action=advanced-tender-search-open-tender,yes,yes,no,downloadspecs.action 302s to login.action?downloadSpec=yes; free account gated by reCAPTCHA v2 checkbox,2026-09-13T13:20Z
+Tenders VIC,Victoria,https://www.tenders.vic.gov.au/,no,no,no,Imperva WAF 403 to every scripted client (identical 5868-byte body) on all paths and header sets tried,2026-09-13T12:23Z
+Tenders SA,South Australia,https://www.tenders.sa.gov.au/,no,no,no,Imperva WAF 403 (same signature as VIC),2026-09-13T12:23Z
+Tenders ACT,Aust. Capital Territory,https://www.tenders.act.gov.au/,no,no,no,Imperva WAF 403 (same signature as VIC),2026-09-13T12:23Z
+Tenders TAS,Tasmania,https://www.tenders.tas.gov.au/,no,no,no,HTTP 500 on /rss and /Home/Tenders,2026-09-13T12:23Z
+QTenders,Queensland,https://qtenders.epw.qld.gov.au/,no,no,no,Blazor WebAssembly SPA; every documented RSS/api path returns the 13737-byte shell,2026-09-13T12:23Z
+buy.nsw,New South Wales,https://buy.nsw.gov.au/,no,no,no,CloudFront 403 on every /api and ?event= path; root renders only,2026-09-13T12:23Z
