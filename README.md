@@ -90,14 +90,17 @@ CC0.
 A second, smaller screening log, added 2026-09-12. Same question asked one level up: before
 you read a tender pack for gates, can you reach the pack at all?
 
-bids&tenders is a single platform with one subdomain per buyer. Access is set per tenant,
-not per notice, and the notice page does not say so until you open it. 129 tenant subdomains
-were probed anonymously on 2026-09-12:
+bids&tenders is a single platform with one subdomain per buyer, and the notice page does not
+say whether the documents cost money until you open it. 129 tenant subdomains were probed
+anonymously on 2026-09-12. **One open notice was sampled per tenant**, so every row below is a
+statement about that notice on that day, not about the tenant's policy. On this platform the
+pay-per-bid setting is applied per solicitation, so a `FREE` tenant can still post a paid
+notice and the reverse is also possible; this file has not measured how often that happens.
 
 | `access_state` | n | what it means |
 |---|---|---|
-| `FEE` | 45 | the first open notice's detail page says *"you will need to have a subscription plan or buy Pay-Per-Bid access for this opportunity"*. Every notice on that tenant is behind that. |
-| `FREE` | 27 | no such string. Documents and plan-taker registration are free. |
+| `FEE` | 45 | the sampled open notice's detail page says *"you will need to have a subscription plan or buy Pay-Per-Bid access for this opportunity"*. Not checked on that tenant's other notices. |
+| `FREE` | 27 | no such string on the sampled notice. Its documents and plan-taker registration are free. A free-registration wall is not distinguishable from a payment wall without an account, so `FEE` is the conservative read and `FREE` is the one measured directly. |
 | `NO-OPEN-BIDS` | 12 | reachable, nothing open at probe time, so access untested. |
 | `DEAD-SLUG` | 45 | `<slug>.bidsandtenders.ca` redirected to `/Error?aspxerrorpath=`. |
 
@@ -105,7 +108,7 @@ were probed anonymously on 2026-09-12:
 Region is `niagararegion`, not `niagara`. Treat that column as "this list had the wrong
 address", nothing more.
 
-The fee band is regional rather than random: the 45 `FEE` tenants are almost entirely
+The fee band, on the sampled notices, is regional rather than random: the 45 `FEE` tenants are almost entirely
 Ontario, including Hamilton, London, Kitchener, Mississauga, Markham, Brampton, Durham,
 York and Niagara Region. The `FREE` tenants are mostly Western Canada and the Maritimes.
 
