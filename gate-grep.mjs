@@ -2,17 +2,24 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import os from 'node:os';
 
 const GATES = [
-  ['REFEREES/CLIENT REFERENCES', /\b(referee|reference project|customer reference|two \(2\) refer|three \(3\) refer|contact details for refer)/i],
-  ['PRIOR-CONTRACT COUNT',       /\b(three \(3\) instances|two \(2\) instances|previous comparable|similar (?:contracts|projects) (?:in|within) the last)/i],
-  ['INSURANCE AT SUBMISSION',    /\b(employer'?s liability|public liability|professional indemnity|certificate of insurance)/i],
-  ['CERTIFICATION',              /\b(ISO ?27001|ISO ?9001|Cyber Essentials|SOC ?2|ISO ?14001)/i],
-  ['TURNOVER',                   /\b(annual turnover|minimum turnover|turnover requirement|turnover of (?:at least|not less than)|turnover during the last|turnover (?:in|over) each of the last)/i],
-  ['GEOGRAPHY / DATA LOCATION',  /\b(within the EEA|outside of the EEA|must be established in|resident in the (?:UK|EU|State))/i],
-  ['NAMED STACK',                /\b(must have been developed in|non matching technolog|equivalent technolog)/i],
+  // Vocabulary note (2026-09-13): these patterns were written from UK/Irish PQQ
+  // wording and missed Canadian RFP wording entirely. Infoway RFP 5446-26 says
+  // "Stage 6 - Reference Verification  Met/Not Met" and "identify three
+  // customers", never the word "referee", so the screener printed a clean pack
+  // on a $141,700 bid whose reference stage is pass/fail. Keep both dialects.
+  ['REFEREES/CLIENT REFERENCES', /\b(referee|reference verification|reference validation|reference check|reference project|customer reference|client reference|(?:two|three|four|2|3|4) ?(?:\(\d\) )?(?:client |customer |business )?references?\b|identify (?:two|three|four|2|3|4) customers|contact details for refer|submit .{0,30}references)/i],
+  ['PASS/FAIL EVALUATION TABLE', /(met ?\/ ?not met|not met ?\/ ?met|pass ?\/ ?fail|pass or fail|on a pass\/fail basis|mandatory requirement|compliant ?\/ ?non-?compliant)/i],
+  ['PRIOR-CONTRACT COUNT',       /\b(three \(3\) instances|two \(2\) instances|previous comparable|similar (?:contracts|projects|engagements) (?:in|within) the last|minimum of \d+ (?:prior|previous|similar) (?:projects|contracts|engagements)|at least \d+ (?:prior|previous|similar) (?:projects|contracts|engagements))/i],
+  ['INSURANCE AT SUBMISSION',    /\b(employer'?s liability|public liability|professional indemnity|certificate of insurance|proof of insurance|commercial general liability)/i],
+  ['CERTIFICATION',              /\b(ISO ?27001|ISO ?9001|Cyber Essentials|SOC ?2|ISO ?14001|WCAG ?2\.\d ?AA)/i],
+  ['TURNOVER',                   /\b(annual turnover|minimum turnover|turnover requirement|turnover of (?:at least|not less than)|turnover during the last|turnover (?:in|over) each of the last|audited financial statements)/i],
+  ['GEOGRAPHY / DATA LOCATION',  /\b(within the EEA|outside of the EEA|must be established in|resident in the (?:UK|EU|State)|data must (?:reside|remain) (?:in|within)|hosted (?:in|within) Canada)/i],
+  ['NAMED STACK',                /\b(must have been developed in|non matching technolog|equivalent technolog|must be a current authori[sz]ed .{0,20}reseller)/i],
   ['HEADCOUNT',                  /\b(minimum of \d+ (?:staff|employees|personnel)|team of at least)/i],
-  ['FEE TO BID',                 /\b(non-?refundable (?:fee|deposit)|document fee of)/i],
+  ['FEE TO BID',                 /\b(non-?refundable (?:fee|deposit)|document fee of|bid security|bid bond)/i],
   ['CHECKLIST POINTER',          /\bchecklist\b/i],
 ];
 
@@ -46,14 +53,37 @@ function extract(file) {
     }
     return out;
   }
+  if (ext === '.zip') {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'gategrep-'));
+    try {
+      // unzip exits non-zero on warnings (exit 1) and on some archives it still
+      // extracted everything, so read the temp dir either way.
+      try { execFileSync('unzip', ['-o', '-qq', '-d', tmp, file], { maxBuffer: 64 << 20 }); } catch { /* see what landed */ }
+      let out = '';
+      for (const inner of walk(tmp, [])) {
+        try { const got = extract(inner); if (got) out += '\n' + got; } catch { /* one bad member is not the pack */ }
+      }
+      return out || null;
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  }
   return null;
+}
+
+// A pack pulled by fetch-docs.mjs puts its documents in a subdirectory, so a
+// depth-1 walk read 3 of 34 files on the Infoway pack and reported it clean.
+function walk(dir, out) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    if (e.name.startsWith('.')) continue;
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) walk(full, out); else out.push(full);
+  }
+  return out;
 }
 
 const files = [];
 const t = process.argv[2];
 if (!t) { console.error('usage: gate-grep.mjs <file|dir>'); process.exit(2); }
-if (fs.statSync(t).isDirectory()) for (const f of fs.readdirSync(t).sort()) files.push(path.join(t, f));
-else files.push(t);
+if (fs.statSync(t).isDirectory()) walk(t, files); else files.push(t);
 
 let hits = 0, read = 0;
 const skipped = [];
@@ -76,4 +106,6 @@ for (const f of files) {
 }
 console.log(`\nread ${read} file(s)` + (skipped.length ? `, COULD NOT READ ${skipped.length}: ${skipped.join(', ')}` : ''));
 if (!read) console.log('NOTHING WAS READ. This is not a clean pack — do not score the bid off this run.');
+console.log(`coverage: read ${read} of ${files.length} file(s) under the target`);
+if (skipped.length) console.log('A pack is not screened until every document in it is read. Convert or remove the unreadable ones before scoring.');
 console.log(hits ? `${hits} gate signal(s). Read each page before scoring the bid.` : 'No gate signals in what was read. Still read the submission checklist.');

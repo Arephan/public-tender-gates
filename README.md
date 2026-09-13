@@ -154,3 +154,47 @@ without three years of audited accounts.
 
 A gate is not a judgement. It tells you which page to read before you spend a
 day writing a proposal.
+
+## Screening a document pack: coverage before verdict (2026-09-13)
+
+`gate-grep.mjs` reported **"No gate signals in what was read"** on Canada Health Infoway
+RFP 5446-26 — a CAD $141,700 website support and maintenance RFP whose own evaluation
+table reads `Stage 6 – Reference Verification    Met/Not Met`, whose section 10 is titled
+`STAGE 6 – REFERENCES`, and whose Appendix G asks the bidder to "identify three customers".
+A clean screen on a pack that is gated on references is worse than no screen, so here is
+what was wrong and what the published script does now.
+
+Two independent causes, both of which make a partial read look like a clean pack:
+
+1. **It did not recurse.** Document packs downloaded from a portal land in a subdirectory.
+   Pointed at the pack root, the script read 3 of 45 files and reported on those three.
+2. **Its vocabulary was one dialect.** The reference patterns were written from UK and
+   Irish PQQ wording — `referee`, `two (2) references`, `contact details for referees`.
+   Canadian and Scottish RFPs write `Reference Verification`, `References`, `identify three
+   customers`, and none of those matched.
+
+Three changes: walk subdirectories and read `.zip` members; widen the reference patterns to
+cover both dialects; and add a `PASS/FAIL EVALUATION TABLE` class for `Met/Not Met`,
+`pass/fail basis` and `mandatory requirement`, which is the form a disqualifying criterion
+usually takes in a North American RFP. The script now prints its coverage
+(`read N of M file(s)`) on every run, so a pack it could not fully open cannot be read as
+a pack with nothing in it.
+
+On the Infoway pack the same script now reads 45 of 45 files and returns 29 signals across
+four classes, including 9 reference hits and 10 pass/fail hits.
+
+`data/pack-screen-coverage.csv` is the re-screen of 22 document packs already on disk —
+Canadian, Irish, Scottish and English buyers — with the file coverage and the gate classes
+found in each. 15 of the 22 carry a pass/fail evaluation table; 12 carry a reference
+requirement. Two packs still read short of full coverage and are marked as such rather than
+scored.
+
+| column | meaning |
+|---|---|
+| `pack` | local directory name for the buyer's document pack |
+| `files_read` / `files_total` | coverage; anything below full is not a screened pack |
+| `gate_signals` | number of distinct file/class hits |
+| `gate_classes` | which gate classes appeared, pipe-separated |
+
+Run it yourself: `node gate-grep.mjs <file-or-directory>`. Node 18+, no dependencies, no
+account. It shells out to `pdftotext` and `unzip`.
