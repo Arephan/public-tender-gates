@@ -201,3 +201,25 @@ scored.
 
 Run it yourself: `node gate-grep.mjs <file-or-directory>`. Node 18+, no dependencies, no
 account. It shells out to `pdftotext` and `unzip`.
+
+## data/ted-notice-types.csv — almost half of a TED "software tender" search is already awarded (2026-09-14)
+
+A search of TED (the EU procurement journal) on CPV 72000000 (IT services) and 48000000
+(software packages), last 30 days, returns every eForms notice type, not only open calls.
+Of the first 5,000 hits (TED reported 5,900 in total; the API pages out at 250 per page):
+
+| | notices | share |
+|---|---|---|
+| Open calls a supplier can still enter (`cn-*`, `pin-cfc-*`, `pin-rtl`, `qu-sy`) | 2,642 | 52.8% |
+| Contract award notices (`can-standard`, `can-social`, `can-desg`) | 1,984 | 39.7% |
+| Modifications to awarded contracts (`can-modif`) | 175 | 3.5% |
+| Voluntary ex-ante transparency, i.e. a direct award announced (`veat`) | 85 | 1.7% |
+| Prior information only, market consultations, buyer profiles | 114 | 2.3% |
+
+How we found it: a scanner that kept every hit as a tender produced nine unread Irish rows on
+2026-09-14. Six were award notices — among them a EUR 2.5M Bord na Móna web-services contract
+whose own text says "this process is now complete". Filter on the `notice-type` field before
+reading anything. `pmc` (preliminary market consultation) is not a competition, but it is worth
+keeping: it is where a buyer asks suppliers to talk before the tender is written.
+
+Regenerate: `node probe-ted-notice-types.mjs` (Node 18+, no dependencies, no account).

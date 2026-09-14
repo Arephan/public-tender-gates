@@ -1,0 +1,16 @@
+notice_type,count,share_pct,open_competition
+cn-standard,2601,52.0,yes
+can-standard,1972,39.4,no
+can-modif,175,3.5,no
+veat,85,1.7,no
+pin-only,72,1.4,no
+pmc,28,0.6,no
+pin-rtl,23,0.5,yes
+pin-buyer,14,0.3,no
+can-social,11,0.2,no
+pin-cfc-standard,6,0.1,yes
+qu-sy,5,0.1,yes
+cn-social,4,0.1,yes
+cn-desg,2,0.0,yes
+pin-cfc-social,1,0.0,yes
+can-desg,1,0.0,no
